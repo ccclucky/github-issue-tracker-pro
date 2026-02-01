@@ -1,0 +1,5 @@
+{
+  "name": "GitHub Issue Tracker Pro",
+  "description": "一个专业的 GitHub Issue 追踪工具，支持自动轮询、分页浏览及本地“已处理”状态持久化同步。",
+  "requestFramePermissions": []
+}
