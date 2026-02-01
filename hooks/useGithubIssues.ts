@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GithubIssue, RepoConfig, ProcessedMap, NotesMap, UserNote } from '../types';
-import { fetchIssuesFromGithub } from '../services/github';
+import { fetchIssuesFromGithub, fetchAllIssuesFromGithub } from '../services/github';
 
 const STORAGE_KEY_PROCESSED = 'github_issue_tracker_processed_v1';
 const STORAGE_KEY_NOTES = 'github_issue_tracker_notes_v1';
@@ -106,6 +106,11 @@ export const useGithubIssues = () => {
   const nextPage = () => setPage(p => p + 1);
   const prevPage = () => setPage(p => Math.max(1, p - 1));
 
+  // Fetch all issues for export
+  const getAllIssues = useCallback(async () => {
+    return await fetchAllIssuesFromGithub(repoConfig);
+  }, [repoConfig]);
+
   return {
     issues,
     loading,
@@ -119,6 +124,7 @@ export const useGithubIssues = () => {
     updateNote,
     nextPage,
     prevPage,
-    refresh: () => loadIssues(false)
+    refresh: () => loadIssues(false),
+    getAllIssues
   };
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GithubIssue, UserNote, NotesMap } from '../types';
-import { CheckCircleIcon, ExternalLinkIcon, GithubIcon, PencilIcon, DocumentTextIcon } from './Icons';
+import { CheckCircleIcon, ExternalLinkIcon, GithubIcon, PencilIcon, ChatBubbleIcon } from './Icons';
 import { NoteModal } from './NoteModal';
 
 interface IssueListProps {
@@ -63,8 +63,8 @@ export const IssueList: React.FC<IssueListProps> = ({
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 <th className="px-6 py-4 w-20 text-center">状态</th>
-                <th className="px-6 py-4 w-1/4">Issue 详情</th>
-                <th className="px-6 py-4 w-1/4">备注信息</th>
+                <th className="px-6 py-4 w-1/3">Issue 详情</th>
+                <th className="px-6 py-4 w-1/5">备注信息</th>
                 <th className="px-6 py-4 w-24">更新时间</th>
                 <th className="px-6 py-4 w-32 text-center">操作</th>
               </tr>
@@ -92,39 +92,62 @@ export const IssueList: React.FC<IssueListProps> = ({
                     </td>
                     
                     {/* 2. Issue Details */}
-                    <td className="px-6 py-4 align-top">
-                      <div className="flex flex-col">
+                    <td className="px-6 py-4 align-top overflow-hidden">
+                      <div className="flex flex-col w-full gap-1.5">
+                        {/* Title Row - Modified to allow wrapping */}
                         <a 
                           href={issue.html_url} 
                           target="_blank" 
                           rel="noreferrer"
-                          className={`text-sm font-medium hover:text-blue-600 flex items-center gap-1 mb-1 ${
+                          title={issue.title}
+                          className={`text-sm font-semibold hover:text-blue-600 flex items-start gap-1.5 leading-snug ${
                             isProcessed ? 'text-gray-500' : 'text-gray-900'
                           }`}
                         >
-                          <span className="text-gray-500">#{issue.number}</span>
-                          {issue.title}
-                          <ExternalLinkIcon className="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                          <span className="text-gray-400 shrink-0 font-mono text-xs font-normal mt-0.5">#{issue.number}</span>
+                          <span className="break-words">{issue.title}</span>
+                          <ExternalLinkIcon className="w-3 h-3 opacity-0 group-hover:opacity-50 shrink-0 text-gray-400 mt-0.5" />
                         </a>
+
+                        {/* Description Preview */}
+                        {issue.body && (
+                          <p className="text-xs text-gray-500 line-clamp-2 font-normal leading-relaxed break-words pr-4" title={issue.body.slice(0, 500)}>
+                            {issue.body}
+                          </p>
+                        )}
                         
-                        <div className="flex flex-wrap gap-2 items-center text-xs text-gray-500">
-                          <img 
-                            src={issue.user.avatar_url} 
-                            alt={issue.user.login} 
-                            className="w-4 h-4 rounded-full"
-                          />
-                          <span>{issue.user.login}</span>
+                        {/* Meta Info Row */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 mt-1">
+                          {/* User */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <img 
+                              src={issue.user.avatar_url} 
+                              alt={issue.user.login} 
+                              className="w-4 h-4 rounded-full border border-gray-100"
+                            />
+                            <span className="font-medium text-gray-600">{issue.user.login}</span>
+                          </div>
+
+                          {/* Comments */}
+                          {issue.comments > 0 && (
+                             <div className="flex items-center gap-1 shrink-0 text-gray-400" title={`${issue.comments} 条评论`}>
+                                <ChatBubbleIcon className="w-3.5 h-3.5" />
+                                <span>{issue.comments}</span>
+                             </div>
+                          )}
                           
+                          {/* Labels */}
                           {issue.labels.length > 0 && (
-                             <div className="flex gap-1 ml-2 flex-wrap">
-                               {issue.labels.slice(0, 3).map(label => (
+                             <div className="flex gap-1 flex-wrap items-center">
+                               {issue.labels.map(label => (
                                  <span 
                                   key={label.id}
-                                  className="px-1.5 py-0.5 rounded-full text-[10px] border truncate max-w-[100px]"
+                                  title={label.name}
+                                  className="px-1.5 py-0.5 rounded-md text-[10px] font-medium truncate max-w-[100px] border border-transparent leading-none"
                                   style={{ 
-                                    borderColor: `#${label.color}`, 
-                                    backgroundColor: `#${label.color}20`,
-                                    color: `#000`
+                                    backgroundColor: `#${label.color}25`,
+                                    color: '#1f2937', 
+                                    border: `1px solid #${label.color}40`
                                   }}
                                  >
                                    {label.name}

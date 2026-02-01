@@ -4,6 +4,7 @@ import { useGithubIssues } from './hooks/useGithubIssues';
 import { RepoControls } from './components/RepoControls';
 import { IssueList } from './components/IssueList';
 import { LoginScreen } from './components/LoginScreen';
+import { generateHtmlReport } from './utils/htmlGenerator';
 
 const AUTH_STORAGE_KEY = 'issue_tracker_auth_token';
 
@@ -46,8 +47,41 @@ const App: React.FC = () => {
     updateNote,
     nextPage,
     prevPage,
-    refresh
+    refresh,
+    getAllIssues
   } = useGithubIssues();
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Export Logic
+  const handleExport = async () => {
+    if (isExporting) return;
+    
+    setIsExporting(true);
+    try {
+      // Fetch ALL issues before generating report
+      const allIssues = await getAllIssues();
+      
+      const htmlContent = generateHtmlReport(allIssues, processedMap, notesMap, repoConfig);
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
+      const dateStr = new Date().toISOString().split('T')[0];
+      const fileName = `issue-report-${repoConfig.owner}-${repoConfig.repo}-${dateStr}.html`;
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(`导出失败: ${e.message || '未知错误'}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // If password is required and not authenticated, show Login Screen
   if (envPassword && !isAuthenticated) {
@@ -108,7 +142,9 @@ const App: React.FC = () => {
           config={repoConfig}
           onUpdate={updateConfig}
           onRefresh={refresh}
+          onExport={handleExport}
           loading={loading}
+          isExporting={isExporting}
           page={page}
         />
 

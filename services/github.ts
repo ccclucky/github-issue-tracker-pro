@@ -35,3 +35,23 @@ export const fetchIssuesFromGithub = async (
 
   return response.json();
 };
+
+export const fetchAllIssuesFromGithub = async (config: RepoConfig): Promise<GithubIssue[]> => {
+  let allIssues: GithubIssue[] = [];
+  let page = 1;
+  const perPage = 100; // Maximize per page to reduce requests
+
+  while (true) {
+    const issues = await fetchIssuesFromGithub(config, page, perPage);
+    if (issues.length === 0) break;
+    
+    allIssues = [...allIssues, ...issues];
+    
+    // If we got fewer issues than perPage, we've reached the last page
+    if (issues.length < perPage) break;
+    
+    page++;
+  }
+
+  return allIssues;
+};
