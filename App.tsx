@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
 import { useGithubIssues } from './hooks/useGithubIssues';
 import { RepoControls } from './components/RepoControls';
 import { IssueList } from './components/IssueList';
 import { LoginScreen } from './components/LoginScreen';
 import { generateHtmlReport } from './utils/htmlGenerator';
 
+// Fix for missing ImportMeta type definition
+declare global {
+  interface ImportMeta {
+    env: {
+      VITE_ACCESS_PASSWORD?: string;
+      [key: string]: any;
+    };
+  }
+}
+
 const AUTH_STORAGE_KEY = 'issue_tracker_auth_token';
 
 const App: React.FC = () => {
   // Authentication Logic
-  const envPassword = process.env.ACCESS_PASSWORD;
+  // 注意：在 Vite 中，必须使用 import.meta.env 且变量名必须以 VITE_ 开头
+  // 使用可选链防止 import.meta.env 未定义时崩溃
+  const envPassword = import.meta.env?.VITE_ACCESS_PASSWORD;
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     // If no password set in env, always authenticated
