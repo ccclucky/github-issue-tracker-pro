@@ -39,9 +39,11 @@ const App: React.FC = () => {
     error,
     page,
     processedMap,
+    notesMap,
     repoConfig,
     updateConfig,
     toggleProcessed,
+    updateNote,
     nextPage,
     prevPage,
     refresh
@@ -113,7 +115,9 @@ const App: React.FC = () => {
         <IssueList 
           issues={issues}
           processedMap={processedMap}
+          notesMap={notesMap}
           onToggle={toggleProcessed}
+          onUpdateNote={updateNote}
           loading={loading}
         />
 
